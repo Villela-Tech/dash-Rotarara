@@ -24,6 +24,9 @@ const Header = ({ lastUpdate, isUpdating }: HeaderProps) => {
         padding: '3rem 0',
         textAlign: 'center',
         overflow: 'hidden',
+        width: '100vw',
+        marginLeft: 'calc(-50vw + 50%)',
+        marginRight: 'calc(-50vw + 50%)',
       }}
     >
       {/* Efeito de brilho */}

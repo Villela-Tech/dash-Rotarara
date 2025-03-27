@@ -107,11 +107,8 @@ const ChartCard = ({ title, type, data, height = 400, delay = 0, options = {} }:
             color: theme.palette.wine.champagne,
             marginBottom: '2rem',
             fontWeight: 500,
-            background: `linear-gradient(135deg, 
-              ${theme.palette.wine.champagne} 0%, 
-              ${theme.palette.wine.accent} 100%)`,
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
+            opacity: 0.8,
+            letterSpacing: '0.02em',
           }}
         >
           {title}

@@ -1,6 +1,11 @@
 import { ReactNode } from 'react';
-import { Box, Container, useTheme } from '@mui/material';
+import { Box, Container, useTheme, Typography, Link } from '@mui/material';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
+import LinkedInIcon from '@mui/icons-material/LinkedIn';
+import FacebookIcon from '@mui/icons-material/Facebook';
+import InstagramIcon from '@mui/icons-material/Instagram';
+import LanguageIcon from '@mui/icons-material/Language';
 
 interface LayoutProps {
   children: ReactNode;
@@ -16,6 +21,8 @@ const Layout = ({ children }: LayoutProps) => {
         background: `linear-gradient(135deg, ${theme.palette.wine.dark} 0%, ${theme.palette.background.default} 100%)`,
         position: 'relative',
         overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
       }}
     >
       {/* Efeito de bolhas de vinho */}
@@ -98,7 +105,8 @@ const Layout = ({ children }: LayoutProps) => {
           position: 'relative',
           zIndex: 1,
           pt: 4,
-          pb: 8,
+          pb: 12,
+          flex: 1,
         }}
       >
         <motion.div
@@ -109,6 +117,180 @@ const Layout = ({ children }: LayoutProps) => {
           {children}
         </motion.div>
       </Container>
+
+      {/* Footer */}
+      <Box
+        sx={{
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          background: `linear-gradient(90deg, 
+            ${theme.palette.wine.dark}20 0%, 
+            ${theme.palette.wine.dark}60 50%,
+            ${theme.palette.wine.dark}20 100%)`,
+          backdropFilter: 'blur(8px)',
+          py: 1.2,
+          px: { xs: 2, md: 4 },
+          display: { xs: 'none', md: 'flex' },
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          zIndex: 10,
+          height: '60px',
+          borderTop: `1px solid ${theme.palette.wine.champagne}10`,
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1 }}>
+          <Image
+            src="/villela.tech.png"
+            alt="Villela Tech"
+            width={40}
+            height={40}
+            style={{
+              opacity: 0.8,
+              filter: 'brightness(0) invert(1)',
+              transition: 'opacity 0.2s ease',
+            }}
+          />
+          <Typography
+            variant="caption"
+            sx={{
+              color: theme.palette.wine.champagne,
+              fontSize: { xs: '0.7rem', md: '0.75rem' },
+              fontWeight: 300,
+              opacity: 0.8,
+              letterSpacing: '0.02em',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            Desenvolvido por{' '}
+            <Link 
+              href="https://www.villelatech.com.br" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              sx={{ 
+                color: 'inherit',
+                textDecoration: 'none',
+                transition: 'opacity 0.2s ease',
+                '&:hover': { 
+                  opacity: 1,
+                  textShadow: '0 0 10px rgba(255,255,255,0.3)'
+                }
+              }}
+            >
+              VillelaTech
+            </Link>
+          </Typography>
+        </Box>
+
+        <Box sx={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          alignItems: 'center',
+          flex: 1,
+          gap: 0.3
+        }}>
+          <Typography
+            variant="caption"
+            sx={{
+              color: theme.palette.wine.champagne,
+              fontSize: { xs: '0.65rem', md: '0.7rem' },
+              fontWeight: 300,
+              opacity: 0.6,
+              letterSpacing: '0.02em',
+              textAlign: 'center',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            © 2025 - Todos os direitos reservados
+          </Typography>
+          <Typography
+            variant="caption"
+            sx={{
+              color: theme.palette.wine.champagne,
+              fontSize: { xs: '0.65rem', md: '0.7rem' },
+              fontWeight: 300,
+              opacity: 0.6,
+              letterSpacing: '0.02em',
+              textAlign: 'center',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            CNPJ: 31.655.393/0001-03
+          </Typography>
+        </Box>
+
+        <Box sx={{ display: 'flex', gap: { xs: 1.5, md: 2 }, flex: 1, justifyContent: 'flex-end' }}>
+          <Link 
+            href="https://www.villelatech.com.br" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            sx={{ 
+              color: theme.palette.wine.champagne, 
+              opacity: 0.8,
+              transition: 'all 0.2s ease',
+              '&:hover': { 
+                opacity: 1,
+                transform: 'translateY(-2px)',
+                filter: 'drop-shadow(0 0 5px rgba(255,255,255,0.3))'
+              } 
+            }}
+          >
+            <LanguageIcon sx={{ fontSize: { xs: '1rem', md: '1.1rem' } }} />
+          </Link>
+          <Link 
+            href="https://br.linkedin.com/company/villelatech" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            sx={{ 
+              color: theme.palette.wine.champagne, 
+              opacity: 0.8,
+              transition: 'all 0.2s ease',
+              '&:hover': { 
+                opacity: 1,
+                transform: 'translateY(-2px)',
+                filter: 'drop-shadow(0 0 5px rgba(255,255,255,0.3))'
+              } 
+            }}
+          >
+            <LinkedInIcon sx={{ fontSize: { xs: '1rem', md: '1.1rem' } }} />
+          </Link>
+          <Link 
+            href="https://www.facebook.com/villelatech" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            sx={{ 
+              color: theme.palette.wine.champagne, 
+              opacity: 0.8,
+              transition: 'all 0.2s ease',
+              '&:hover': { 
+                opacity: 1,
+                transform: 'translateY(-2px)',
+                filter: 'drop-shadow(0 0 5px rgba(255,255,255,0.3))'
+              } 
+            }}
+          >
+            <FacebookIcon sx={{ fontSize: { xs: '1rem', md: '1.1rem' } }} />
+          </Link>
+          <Link 
+            href="https://www.instagram.com/villelatech_/" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            sx={{ 
+              color: theme.palette.wine.champagne, 
+              opacity: 0.8,
+              transition: 'all 0.2s ease',
+              '&:hover': { 
+                opacity: 1,
+                transform: 'translateY(-2px)',
+                filter: 'drop-shadow(0 0 5px rgba(255,255,255,0.3))'
+              } 
+            }}
+          >
+            <InstagramIcon sx={{ fontSize: { xs: '1rem', md: '1.1rem' } }} />
+          </Link>
+        </Box>
+      </Box>
     </Box>
   );
 };
