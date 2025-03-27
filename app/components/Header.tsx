@@ -3,12 +3,14 @@ import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import WineBarIcon from '@mui/icons-material/WineBar';
+import SyncIcon from '@mui/icons-material/Sync';
 
 interface HeaderProps {
   lastUpdate: Date;
+  isUpdating: boolean;
 }
 
-const Header = ({ lastUpdate }: HeaderProps) => {
+const Header = ({ lastUpdate, isUpdating }: HeaderProps) => {
   const theme = useTheme();
 
   return (
@@ -105,19 +107,29 @@ const Header = ({ lastUpdate }: HeaderProps) => {
       </Typography>
 
       {/* Última atualização */}
-      <Typography
-        variant="subtitle1"
-        component={motion.p}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 0.8 }}
-        transition={{ duration: 0.8, delay: 0.6 }}
-        sx={{
-          color: theme.palette.wine.champagne,
-          fontStyle: 'italic',
-        }}
-      >
-        Última atualização: {format(lastUpdate, "dd 'de' MMMM 'às' HH:mm", { locale: ptBR })}
-      </Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+        <Typography
+          variant="subtitle1"
+          component={motion.p}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.8 }}
+          transition={{ duration: 0.8, delay: 0.6 }}
+          sx={{
+            color: theme.palette.wine.champagne,
+            fontStyle: 'italic',
+          }}
+        >
+          Última atualização: {format(lastUpdate, "dd 'de' MMMM 'às' HH:mm:ss", { locale: ptBR })}
+        </Typography>
+        {isUpdating && (
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+          >
+            <SyncIcon sx={{ color: theme.palette.wine.champagne, opacity: 0.8 }} />
+          </motion.div>
+        )}
+      </Box>
 
       {/* Decoração */}
       <Box

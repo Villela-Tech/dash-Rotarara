@@ -25,33 +25,45 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdate, setLastUpdate] = useState(new Date());
+  const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setIsUpdating(true);
         const timestamp = Date.now();
         const response = await fetch(`/api/votes?t=${timestamp}`, {
           headers: {
             'Cache-Control': 'no-cache, no-store, must-revalidate',
             'Pragma': 'no-cache',
             'Expires': '0'
-          }
+          },
+          // Força o fetch a ignorar o cache
+          cache: 'no-store',
+          next: { revalidate: 0 }
         });
+        
         if (!response.ok) {
           throw new Error('Falha ao carregar os dados');
         }
+        
         const jsonData = await response.json();
         setData(jsonData);
         setLastUpdate(new Date());
       } catch (err) {
+        console.error('Erro ao buscar dados:', err);
         setError(err instanceof Error ? err.message : 'Erro desconhecido');
       } finally {
+        setIsUpdating(false);
         setLoading(false);
       }
     };
 
+    // Faz a primeira chamada imediatamente
     fetchData();
-    const interval = setInterval(fetchData, 60000); // Atualiza a cada minuto
+
+    // Atualiza a cada 5 segundos
+    const interval = setInterval(fetchData, 5000);
 
     return () => clearInterval(interval);
   }, []);
@@ -60,7 +72,7 @@ export default function Home() {
     return (
       <Layout>
         <Container>
-          <Header lastUpdate={lastUpdate} />
+          <Header lastUpdate={lastUpdate} isUpdating={isUpdating} />
           <div style={{ textAlign: 'center', color: theme.palette.error.main, padding: '2rem' }}>
             Erro: {error}
           </div>
@@ -103,7 +115,7 @@ export default function Home() {
   return (
     <Layout>
       <Container maxWidth="xl">
-        <Header lastUpdate={lastUpdate} />
+        <Header lastUpdate={lastUpdate} isUpdating={isUpdating} />
 
         {/* Destaque Vinho do Evento - Centralizado */}
         {eventoCategory && (
