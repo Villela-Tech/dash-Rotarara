@@ -1,15 +1,17 @@
 import { Card, CardContent, Typography, Box, useTheme } from '@mui/material';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
+import { ReactNode } from 'react';
 
 interface StatCardProps {
   title: string;
-  value: number | string;
-  icon: React.ReactNode;
+  value: string | number;
+  subtitle?: string;
+  icon: ReactNode;
   delay?: number;
 }
 
-const StatCard = ({ title, value, icon, delay = 0 }: StatCardProps) => {
+const StatCard = ({ title, value, subtitle, icon, delay = 0 }: StatCardProps) => {
   const theme = useTheme();
   const [ref, inView] = useInView({
     threshold: 0.2,
@@ -30,7 +32,6 @@ const StatCard = ({ title, value, icon, delay = 0 }: StatCardProps) => {
           ${theme.palette.background.paper}EE 100%)`,
         backdropFilter: 'blur(10px)',
         border: `1px solid ${theme.palette.wine.light}30`,
-        overflow: 'visible',
       }}
     >
       <CardContent
@@ -40,88 +41,98 @@ const StatCard = ({ title, value, icon, delay = 0 }: StatCardProps) => {
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          textAlign: 'center',
+          justifyContent: 'space-between',
         }}
       >
-        {/* Ícone flutuante */}
-        <motion.div
-          initial={{ y: 0 }}
-          animate={{ y: [-5, 5, -5] }}
-          transition={{
-            duration: 3,
-            repeat: Infinity,
-            repeatType: 'reverse',
-            ease: 'easeInOut',
-          }}
-          style={{
-            position: 'absolute',
-            top: '-2rem',
-            background: `linear-gradient(135deg, ${theme.palette.wine.main}, ${theme.palette.wine.dark})`,
-            borderRadius: '50%',
-            padding: '1rem',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+        {/* Título */}
+        <Typography
+          variant="h6"
+          component={motion.h3}
+          initial={{ opacity: 0, x: -20 }}
+          animate={inView ? { opacity: 1, x: 0 } : {}}
+          transition={{ duration: 0.5, delay: delay + 0.2 }}
+          sx={{
+            color: theme.palette.wine.champagne,
+            marginBottom: '1rem',
+            fontWeight: 500,
+            fontSize: '1rem',
           }}
         >
-          <Box sx={{ color: theme.palette.wine.champagne, fontSize: '2rem' }}>
-            {icon}
-          </Box>
-        </motion.div>
+          {title}
+        </Typography>
 
         {/* Valor */}
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={inView ? { scale: 1 } : {}}
-          transition={{ duration: 0.5, delay: delay + 0.3 }}
-        >
+        <Box sx={{ position: 'relative', zIndex: 1 }}>
           <Typography
-            variant="h2"
+            variant="h4"
+            component={motion.div}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={inView ? { opacity: 1, scale: 1 } : {}}
+            transition={{ duration: 0.5, delay: delay + 0.4 }}
             sx={{
               color: theme.palette.wine.champagne,
-              fontWeight: 'bold',
-              marginTop: '2rem',
-              marginBottom: '0.5rem',
+              fontWeight: 600,
               background: `linear-gradient(135deg, 
                 ${theme.palette.wine.champagne} 0%, 
                 ${theme.palette.wine.accent} 100%)`,
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
+              marginBottom: subtitle ? '0.5rem' : 0,
             }}
           >
             {value}
           </Typography>
-        </motion.div>
 
-        {/* Título */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.5, delay: delay + 0.5 }}
+          {/* Subtítulo */}
+          {subtitle && (
+            <Typography
+              variant="body2"
+              component={motion.div}
+              initial={{ opacity: 0 }}
+              animate={inView ? { opacity: 0.8 } : {}}
+              transition={{ duration: 0.5, delay: delay + 0.5 }}
+              sx={{
+                color: theme.palette.wine.champagne,
+                fontSize: '0.875rem',
+                opacity: 0.8,
+              }}
+            >
+              {subtitle}
+            </Typography>
+          )}
+        </Box>
+
+        {/* Ícone */}
+        <Box
+          component={motion.div}
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={inView ? { opacity: 0.2, scale: 1 } : {}}
+          transition={{ duration: 0.5, delay: delay + 0.3 }}
+          sx={{
+            position: 'absolute',
+            right: '1.5rem',
+            bottom: '1.5rem',
+            color: theme.palette.wine.champagne,
+            fontSize: '3rem',
+            opacity: 0.2,
+            '& > svg': {
+              fontSize: 'inherit',
+            },
+          }}
         >
-          <Typography
-            variant="h6"
-            sx={{
-              color: theme.palette.wine.light,
-              fontWeight: 500,
-              fontStyle: 'italic',
-            }}
-          >
-            {title}
-          </Typography>
-        </motion.div>
+          {icon}
+        </Box>
 
         {/* Decoração de fundo */}
         <Box
           sx={{
             position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: '120%',
-            height: '120%',
-            background: `radial-gradient(circle at center, 
-              ${theme.palette.wine.light}10 0%, 
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: `radial-gradient(circle at bottom right, 
+              ${theme.palette.wine.light}05 0%, 
               transparent 70%)`,
             pointerEvents: 'none',
           }}

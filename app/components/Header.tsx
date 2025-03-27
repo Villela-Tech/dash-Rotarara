@@ -84,7 +84,7 @@ const Header = ({ lastUpdate }: HeaderProps) => {
           marginBottom: '1rem',
         }}
       >
-        Rotarara 2023
+        Rotarara 2025
       </Typography>
 
       {/* Subtítulo */}

@@ -37,6 +37,7 @@ const ChartCard = ({ title, type, data, height = 400, delay = 0 }: ChartCardProp
         },
         text: {
           fill: theme.palette.wine.champagne,
+          fontSize: 10,
         },
       },
       legend: {
@@ -66,6 +67,7 @@ const ChartCard = ({ title, type, data, height = 400, delay = 0 }: ChartCardProp
         borderRadius: 8,
         boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.3)',
         border: `1px solid ${theme.palette.wine.light}30`,
+        padding: '12px 16px',
       },
     },
   };
@@ -131,8 +133,8 @@ const ChartCard = ({ title, type, data, height = 400, delay = 0 }: ChartCardProp
               <ResponsiveBar
                 data={data}
                 keys={['votes']}
-                indexBy="winery"
-                margin={{ top: 50, right: 50, bottom: 70, left: 60 }}
+                indexBy={data[0]?.category ? 'category' : 'winery'}
+                margin={{ top: 50, right: 130, bottom: 120, left: 60 }}
                 padding={0.3}
                 valueScale={{ type: 'linear' }}
                 indexScale={{ type: 'band', round: true }}
@@ -147,9 +149,9 @@ const ChartCard = ({ title, type, data, height = 400, delay = 0 }: ChartCardProp
                   tickSize: 5,
                   tickPadding: 5,
                   tickRotation: -45,
-                  legend: 'Vinícola',
+                  legend: data[0]?.category ? 'Categoria' : 'Vinícola',
                   legendPosition: 'middle',
-                  legendOffset: 60,
+                  legendOffset: 85,
                 }}
                 axisLeft={{
                   tickSize: 5,
@@ -165,6 +167,30 @@ const ChartCard = ({ title, type, data, height = 400, delay = 0 }: ChartCardProp
                   from: 'color',
                   modifiers: [['darker', 1.6]],
                 }}
+                legends={[
+                  {
+                    dataFrom: 'keys',
+                    anchor: 'bottom-right',
+                    direction: 'column',
+                    justify: false,
+                    translateX: 120,
+                    translateY: 0,
+                    itemsSpacing: 2,
+                    itemWidth: 100,
+                    itemHeight: 20,
+                    itemDirection: 'left-to-right',
+                    itemOpacity: 0.85,
+                    symbolSize: 20,
+                    effects: [
+                      {
+                        on: 'hover',
+                        style: {
+                          itemOpacity: 1,
+                        },
+                      },
+                    ],
+                  },
+                ]}
                 theme={chartTheme}
                 role="application"
                 ariaLabel={title}
@@ -173,7 +199,7 @@ const ChartCard = ({ title, type, data, height = 400, delay = 0 }: ChartCardProp
             ) : (
               <ResponsivePie
                 data={data}
-                margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
+                margin={{ top: 40, right: 200, bottom: 40, left: 80 }}
                 innerRadius={0.5}
                 padAngle={0.7}
                 cornerRadius={3}
@@ -195,13 +221,14 @@ const ChartCard = ({ title, type, data, height = 400, delay = 0 }: ChartCardProp
                 theme={chartTheme}
                 legends={[
                   {
-                    anchor: 'bottom',
-                    direction: 'row',
+                    anchor: 'right',
+                    direction: 'column',
                     justify: false,
-                    translateY: 56,
-                    itemsSpacing: 0,
-                    itemWidth: 100,
-                    itemHeight: 18,
+                    translateX: 140,
+                    translateY: 0,
+                    itemWidth: 120,
+                    itemHeight: 20,
+                    itemsSpacing: 10,
                     itemTextColor: theme.palette.wine.champagne,
                     itemDirection: 'left-to-right',
                     itemOpacity: 1,
