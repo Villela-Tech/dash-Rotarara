@@ -9,6 +9,19 @@ export const API_HEADERS = {
   'Pragma': 'no-cache'
 };
 
+// Mapeamento exato para as colunas da planilha
+export const CATEGORY_COLUMNS: Record<number, string> = {
+  1: 'Destaque Espumante',
+  2: 'Destaque Vinho Branco',
+  3: 'Destaque Vinho Rosé',
+  4: 'Destaque Vinho Tinto',
+  5: 'Destaque Custo-Benefício',
+  6: 'Destaque Design de Vinho',
+  7: 'Destaque Vinho Inovador',
+  8: 'Destaque Vinho do Evento',
+  9: 'Destaque Vinho Laranja'
+};
+
 export const CATEGORIES = {
   ESPUMANTE: 'Destaque Espumante',
   BRANCO: 'Destaque Vinho Branco',
@@ -53,9 +66,9 @@ export function extractWineName(input: string): { wine: string; winery: string; 
     ].filter(Boolean).join(' ');
 
     return {
-      wine,
-      winery,
-      fullName,
+      wine: parts[1], // Retorna o nome completo sem o número
+      winery: '', // Não dividimos mais por winery separadamente
+      fullName: parts[1],
       year
     };
   } catch (error) {

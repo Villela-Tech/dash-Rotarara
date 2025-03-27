@@ -1,22 +1,24 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Container, Grid, useTheme } from '@mui/material';
+import { Container, Grid, useTheme, Typography, Box, Paper, CircularProgress } from '@mui/material';
 import WineBarIcon from '@mui/icons-material/WineBar';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import Layout from './components/Layout';
 import Header from './components/Header';
-import StatCard from './components/StatCard';
 import ChartCard from './components/ChartCard';
+
+interface WineResult {
+  name: string;
+  winery: string;
+  votes: number;
+  position: number;
+}
 
 interface CategoryData {
   category: string;
   totalVotes: number;
-  topWine?: {
-    name: string;
-    winery: string;
-    votes: number;
-  };
+  topWines: WineResult[];
 }
 
 export default function Home() {
@@ -33,6 +35,8 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    if (!mounted) return;
+    
     const fetchData = async () => {
       try {
         setIsUpdating(true);
@@ -52,6 +56,8 @@ export default function Home() {
         }
         
         const jsonData = await response.json();
+        console.log('Dados recebidos da API:', JSON.stringify(jsonData, null, 2));
+        
         setData(jsonData);
         setLastUpdate(new Date());
       } catch (err) {
@@ -66,13 +72,22 @@ export default function Home() {
     fetchData();
     const interval = setInterval(fetchData, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [mounted]);
 
-  if (!mounted || loading) {
+  // Aguardar até que o componente seja montado no cliente
+  if (!mounted) {
+    return null; // Não renderiza nada no servidor para evitar erros de hidratação
+  }
+
+  if (loading) {
     return (
       <Layout>
         <Container maxWidth="xl">
           <Header lastUpdate={lastUpdate} isUpdating={true} />
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+            <CircularProgress color="primary" />
+            <Typography sx={{ ml: 2 }}>Carregando dados...</Typography>
+          </Box>
         </Container>
       </Layout>
     );
@@ -83,9 +98,23 @@ export default function Home() {
       <Layout>
         <Container>
           <Header lastUpdate={lastUpdate} isUpdating={isUpdating} />
-          <div style={{ textAlign: 'center', color: theme.palette.error.main, padding: '2rem' }}>
-            Erro: {error}
-          </div>
+          <Box sx={{ textAlign: 'center', color: theme.palette.error.main, padding: '2rem' }}>
+            <Typography variant="h6">Erro: {error}</Typography>
+          </Box>
+        </Container>
+      </Layout>
+    );
+  }
+
+  // Garantir que temos dados para evitar erros de renderização
+  if (data.length === 0) {
+    return (
+      <Layout>
+        <Container>
+          <Header lastUpdate={lastUpdate} isUpdating={isUpdating} />
+          <Box sx={{ textAlign: 'center', padding: '2rem' }}>
+            <Typography>Nenhum dado disponível</Typography>
+          </Box>
         </Container>
       </Layout>
     );
@@ -95,10 +124,7 @@ export default function Home() {
   const eventoCategory = data.find(cat => cat.category === 'Destaque Vinho do Evento');
   const otherCategories = data.filter(cat => cat.category !== 'Destaque Vinho do Evento');
 
-  // Remover a lógica de adicionar o Total de Votos após Vinho Inovador
-  const orderedCategories = otherCategories;
-
-  // Dados para os gráficos de análise
+  // Dados para os gráficos de análise (apenas se tivermos dados)
   const pieData = data
     .filter(category => category.category !== 'Total de Votos')
     .map(category => ({
@@ -114,6 +140,55 @@ export default function Home() {
       votos: category.totalVotes,
     }));
 
+  // Renderizar pódio com os 3 primeiros colocados
+  const renderPodium = (category: CategoryData) => {
+    if (!category.topWines || category.topWines.length === 0) {
+      return <Typography>Sem vinhos classificados</Typography>;
+    }
+
+    return (
+      <Box sx={{ mt: 2 }}>
+        {category.topWines.map((wine, index) => (
+          <Box 
+            key={index} 
+            sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              mb: 1,
+              p: 1,
+              borderRadius: 1,
+              bgcolor: index === 0 ? 'rgba(255,215,0,0.1)' : 
+                      index === 1 ? 'rgba(192,192,192,0.1)' : 
+                      index === 2 ? 'rgba(205,127,50,0.1)' : 'transparent'
+            }}
+          >
+            <Typography 
+              variant="body1"
+              sx={{ 
+                mr: 1, 
+                fontWeight: 'bold',
+                color: index === 0 ? 'gold' : 
+                      index === 1 ? 'silver' : 
+                      index === 2 ? '#cd7f32' : 'inherit'
+              }}
+            >
+              {wine.position}º
+            </Typography>
+            <Typography 
+              variant="body1"
+              sx={{ 
+                fontWeight: index === 0 ? 'bold' : 'normal',
+                fontSize: index === 0 ? '1rem' : '0.9rem'
+              }}
+            >
+              {wine.name} ({wine.votes} {wine.votes === 1 ? 'voto' : 'votos'})
+            </Typography>
+          </Box>
+        ))}
+      </Box>
+    );
+  };
+
   return (
     <Layout>
       <Container maxWidth="xl">
@@ -122,39 +197,55 @@ export default function Home() {
         {/* Destaque Vinho do Evento - Centralizado */}
         {eventoCategory && (
           <Grid container justifyContent="center" sx={{ marginBottom: 6, marginTop: 4 }}>
-            <Grid item xs={12} sm={6} md={4}>
-              <StatCard
-                title={eventoCategory.category}
-                value={eventoCategory.totalVotes}
-                subtitle={eventoCategory.topWine ? 
-                  `${eventoCategory.topWine.winery} - ${eventoCategory.topWine.name}` : undefined}
-                icon={<EmojiEventsIcon />}
-                delay={0.2}
-                sx={{
-                  transform: 'scale(1.1)',
-                  '& .MuiCard-root': {
-                    background: `linear-gradient(135deg, 
-                      ${theme.palette.wine.dark} 0%, 
-                      ${theme.palette.wine.main} 100%)`
-                  }
+            <Grid item xs={12} sm={8} md={6}>
+              <Paper 
+                elevation={3} 
+                sx={{ 
+                  p: 3, 
+                  background: `linear-gradient(135deg, 
+                    ${theme.palette.wine.dark} 0%, 
+                    ${theme.palette.wine.main} 100%)`,
+                  color: 'white'
                 }}
-              />
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <EmojiEventsIcon sx={{ fontSize: 40, mr: 2 }} />
+                  <Typography variant="h5" component="h2">
+                    {eventoCategory.category}
+                  </Typography>
+                </Box>
+                <Typography variant="subtitle1" sx={{ mb: 2 }}>
+                  Total de votos na categoria: {eventoCategory.totalVotes}
+                </Typography>
+                {renderPodium(eventoCategory)}
+              </Paper>
             </Grid>
           </Grid>
         )}
 
         {/* Demais categorias */}
         <Grid container spacing={4} sx={{ marginBottom: 6 }}>
-          {orderedCategories.map((category, index) => (
-            <Grid item xs={12} sm={6} md={3} key={category.category}>
-              <StatCard
-                title={category.category}
-                value={category.totalVotes}
-                subtitle={'topWine' in category && category.topWine ? 
-                  `${category.topWine.winery} - ${category.topWine.name}` : undefined}
-                icon={<WineBarIcon />}
-                delay={0.2 + index * 0.1}
-              />
+          {otherCategories.map((category, index) => (
+            <Grid item xs={12} sm={6} md={4} key={category.category}>
+              <Paper 
+                elevation={3} 
+                sx={{ 
+                  p: 3, 
+                  height: '100%',
+                  backgroundColor: theme.palette.background.paper
+                }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <WineBarIcon sx={{ fontSize: 30, mr: 2, color: theme.palette.wine.main }} />
+                  <Typography variant="h6" component="h2">
+                    {category.category}
+                  </Typography>
+                </Box>
+                <Typography variant="subtitle2" sx={{ mb: 2 }}>
+                  Total de votos na categoria: {category.totalVotes}
+                </Typography>
+                {renderPodium(category)}
+              </Paper>
             </Grid>
           ))}
         </Grid>
@@ -167,7 +258,7 @@ export default function Home() {
               type="pie"
               data={pieData}
               height={400}
-              delay={0.4}
+              delay={0}
               options={{
                 margin: { top: 40, right: 120, bottom: 80, left: 80 },
                 innerRadius: 0.6,
@@ -209,7 +300,7 @@ export default function Home() {
               type="bar"
               data={barData}
               height={400}
-              delay={0.5}
+              delay={0}
               options={{
                 margin: { top: 50, right: 50, bottom: 100, left: 60 },
                 padding: 0.3,
@@ -245,4 +336,4 @@ export default function Home() {
       </Container>
     </Layout>
   );
-} 
+}
