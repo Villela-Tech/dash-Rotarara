@@ -2,7 +2,7 @@ import { Box, Typography, useTheme } from '@mui/material';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import WineBarIcon from '@mui/icons-material/WineBar';
+import Image from 'next/image';
 
 interface HeaderProps {
   lastUpdate: Date;
@@ -44,7 +44,7 @@ const Header = ({ lastUpdate }: HeaderProps) => {
         }}
       />
 
-      {/* Ícone animado */}
+      {/* Logo animada */}
       <motion.div
         initial={{ rotate: -20 }}
         animate={{ rotate: [0, -10, 0] }}
@@ -54,14 +54,15 @@ const Header = ({ lastUpdate }: HeaderProps) => {
           repeatType: 'reverse',
           ease: 'easeInOut',
         }}
-        style={{ display: 'inline-block', marginBottom: '1rem' }}
+        style={{ display: 'inline-block', marginBottom: '1rem', width: '100px', height: '100px', position: 'relative' }}
       >
-        <WineBarIcon
-          sx={{
-            fontSize: '4rem',
-            color: theme.palette.wine.light,
-            filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))',
-          }}
+        <Image
+          src="/logo.png"
+          alt="Logo Rotarara"
+          fill
+          sizes="(max-width: 768px) 80px, 100px"
+          style={{ objectFit: 'contain' }}
+          priority
         />
       </motion.div>
 

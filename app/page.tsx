@@ -29,7 +29,12 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/api/votes');
+        // Define a URL baseada no ambiente
+        const apiUrl = process.env.NODE_ENV === 'production' 
+          ? '/.netlify/functions/updateVotes'
+          : '/api/votes';
+          
+        const response = await fetch(apiUrl);
         if (!response.ok) {
           throw new Error('Falha ao carregar os dados');
         }
@@ -37,6 +42,7 @@ export default function Home() {
         setData(jsonData);
         setLastUpdate(new Date());
       } catch (err) {
+        console.error('Erro ao buscar dados:', err);
         setError(err instanceof Error ? err.message : 'Erro desconhecido');
       } finally {
         setLoading(false);
@@ -44,7 +50,8 @@ export default function Home() {
     };
 
     fetchData();
-    const interval = setInterval(fetchData, 60000); // Atualiza a cada minuto
+    // Atualiza a cada 10 segundos
+    const interval = setInterval(fetchData, 10000);
 
     return () => clearInterval(interval);
   }, []);

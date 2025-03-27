@@ -1,6 +1,7 @@
 [build]
   command = "npm run build"
   publish = ".next"
+  functions = "netlify/functions"
 
 [build.environment]
   NEXT_RUNTIME = "nodejs18.x"
@@ -20,4 +21,12 @@
   pretty_urls = true
 
 [context.production.environment]
-  NEXT_PUBLIC_BUILD_TIME = "${new Date().toISOString()}" 
+  NEXT_PUBLIC_BUILD_TIME = "${new Date().toISOString()}"
+
+# Configuração da função agendada
+[[functions]]
+  directory = "netlify/functions"
+
+# Agendamento para atualizar os votos a cada 10 segundos
+[functions.updateVotes]
+  schedule = "*/10 * * * * *" 
