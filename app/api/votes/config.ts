@@ -24,7 +24,7 @@ export const CATEGORIES = {
 export const GOOGLE_SHEET_ID = '1o4FDXEvvNcHd4r5CZ3jktBsq2aLGVFj1Wnd7T3CcRFs';
 
 // A URL base para acessar os dados da planilha como CSV
-export const SHEET_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:json`;
+export const SHEET_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:json&nocache=`;
 
 export function calculatePercentage(count: number, total: number): number {
   if (total === 0) return 0;

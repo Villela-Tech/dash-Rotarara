@@ -22,7 +22,16 @@
 [build.processing.html]
   pretty_urls = true
 
-# Força o Netlify a não usar cache para os assets
+# Headers específicos para a API
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    Pragma = "no-cache"
+    Expires = "0"
+
+# Headers gerais para assets
 [[headers]]
   for = "/*"
   [headers.values]

@@ -14,7 +14,14 @@ interface VoteData {
 
 export async function GET() {
   try {
-    const response = await axios.get(SHEET_URL);
+    const timestamp = Date.now();
+    const response = await axios.get(SHEET_URL + timestamp, {
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    });
     
     // O Google Sheets retorna os dados em um formato específico que precisamos processar
     const jsonData = JSON.parse(response.data.substring(47).slice(0, -2));
