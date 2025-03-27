@@ -306,6 +306,9 @@ function processData(jsonData: any, apiUrl: string, rawResponse: string): ApiRes
     // Conjunto para armazenar IDs de submissão já vistos
     const processedSubmissionIds = new Set<string>();
     
+    // Conjunto para armazenar telefones já processados
+    const processedPhoneNumbers = new Set<string>();
+    
     // Processar cada linha de dados
     rows.forEach((row: any, index: number) => {
       if (!row.c) {
@@ -329,12 +332,6 @@ function processData(jsonData: any, apiUrl: string, rawResponse: string): ApiRes
         return;
       }
       
-      // Marcar este Submission ID como processado
-      processedSubmissionIds.add(submissionId);
-      
-      // Cada linha única conta como um participante válido
-      validRowsCount++;
-      
       // Verificar se a coluna de telefone tem um valor
       const phoneColIdx = columnMap.get(COLUMN_NAMES.TELEFONE) || 0;
       let phoneNumber = `linha-${index + startRow + 1}`;
@@ -342,6 +339,24 @@ function processData(jsonData: any, apiUrl: string, rawResponse: string): ApiRes
       if (phoneColIdx >= 0 && phoneColIdx < row.c.length && row.c[phoneColIdx] && row.c[phoneColIdx].v) {
         phoneNumber = row.c[phoneColIdx].v.toString().trim();
       }
+      
+      // Verificar se este número de telefone já foi usado
+      if (phoneNumber !== `linha-${index + startRow + 1}` && processedPhoneNumbers.has(phoneNumber)) {
+        console.log(`Linha ${index + startRow + 1} - Telefone duplicado: "${phoneNumber}". Ignorando.`);
+        duplicateSubmissionCount++;
+        return;
+      }
+      
+      // Marcar este Submission ID como processado
+      processedSubmissionIds.add(submissionId);
+      
+      // Marcar este telefone como processado (apenas se for um telefone válido)
+      if (phoneNumber !== `linha-${index + startRow + 1}`) {
+        processedPhoneNumbers.add(phoneNumber);
+      }
+      
+      // Cada linha única conta como um participante válido
+      validRowsCount++;
       
       let votesInThisRow = 0;
       console.log(`\nLinha ${index + startRow + 1} - ID: ${phoneNumber} - Submission: ${submissionId.substring(0, 20)}...`);
@@ -358,11 +373,13 @@ function processData(jsonData: any, apiUrl: string, rawResponse: string): ApiRes
         
         // Verificar se existe um valor na célula e se a célula existe
         if (colIdx >= row.c.length || !row.c[colIdx] || !row.c[colIdx].v) {
+          console.log(`  Categoria "${categoryName}": campo vazio, ignorando`);
           return;
         }
         
         const cellValue = row.c[colIdx].v.toString().trim();
         if (!cellValue) {
+          console.log(`  Categoria "${categoryName}": valor vazio, ignorando`);
           return;
         }
         
@@ -388,6 +405,12 @@ function processData(jsonData: any, apiUrl: string, rawResponse: string): ApiRes
       });
       
       console.log(`  >> Total de votos nesta linha: ${votesInThisRow}`);
+      
+      // Se não houver votos nesta linha, decrementar o contador de linhas válidas
+      if (votesInThisRow === 0) {
+        console.log(`  >> Nenhum voto válido nesta linha, ignorando para a contagem de participantes`);
+        validRowsCount--;
+      }
     });
     
     console.log(`\n=============================================`);
