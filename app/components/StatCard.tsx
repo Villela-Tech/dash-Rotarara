@@ -85,7 +85,7 @@ const StatCard = ({ title, value, subtitle, icon, delay = 0, sx }: StatCardProps
               gap: '0.5rem'
             }}
           >
-            {value}
+            {value || 0}
             <Typography
               component="span"
               variant="h6"

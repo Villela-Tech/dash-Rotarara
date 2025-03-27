@@ -42,18 +42,25 @@ export async function GET() {
           categoryVotes[category] = { total: 0, wines: {} };
         });
 
+        // Contagem de linhas válidas (excluindo o cabeçalho e linhas vazias)
+        let validRows = 0;
+        const validRowsData = rawData.table.rows.filter((row: any, index: number) => {
+          if (index === 0 || !row.c || !row.c[1]) return false;
+          validRows++;
+          return true;
+        });
+
         // Processando cada linha da planilha
-        rawData.table.rows.forEach((row: any, index: number) => {
-          if (!row.c || !row.c[1] || index === 0) return; // Pula o cabeçalho e linhas vazias
-          
-          // Para cada categoria (colunas B até I)
-          for (let i = 1; i <= 8; i++) {
+        validRowsData.forEach((row: any) => {
+          // Para cada categoria (colunas B até J)
+          for (let i = 1; i <= 9; i++) {
             if (!row.c[i] || !row.c[i].v) continue;
             
             const category = Object.values(CATEGORIES)[i-1];
             const { wine, winery } = extractWineName(row.c[i].v);
             
-            categoryVotes[category].total++;
+            // Atualiza o total para cada categoria com o número real de linhas válidas
+            categoryVotes[category].total = validRows;
             
             if (!categoryVotes[category].wines[wine]) {
               categoryVotes[category].wines[wine] = {
@@ -81,7 +88,7 @@ export async function GET() {
 
           return {
             category,
-            totalVotes: data.total,
+            totalVotes: validRows, // Usando o número real de linhas válidas
             topWine: topWine || undefined
           };
         });

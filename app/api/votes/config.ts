@@ -14,6 +14,7 @@ export const CATEGORIES = {
   BRANCO: 'Destaque Vinho Branco',
   ROSE: 'Destaque Vinho Rosé',
   TINTO: 'Destaque Vinho Tinto',
+  LARANJA: 'Destaque Vinho Laranja',
   CUSTO_BENEFICIO: 'Destaque Custo-Benefício',
   DESIGN: 'Destaque Design de Vinho',
   INOVADOR: 'Destaque Vinho Inovador',

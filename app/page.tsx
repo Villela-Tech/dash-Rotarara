@@ -26,6 +26,11 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [lastUpdate, setLastUpdate] = useState(new Date());
   const [isUpdating, setIsUpdating] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -38,7 +43,6 @@ export default function Home() {
             'Pragma': 'no-cache',
             'Expires': '0'
           },
-          // Força o fetch a ignorar o cache
           cache: 'no-store',
           next: { revalidate: 0 }
         });
@@ -59,14 +63,20 @@ export default function Home() {
       }
     };
 
-    // Faz a primeira chamada imediatamente
     fetchData();
-
-    // Atualiza a cada 5 segundos
     const interval = setInterval(fetchData, 5000);
-
     return () => clearInterval(interval);
   }, []);
+
+  if (!mounted || loading) {
+    return (
+      <Layout>
+        <Container maxWidth="xl">
+          <Header lastUpdate={lastUpdate} isUpdating={true} />
+        </Container>
+      </Layout>
+    );
+  }
 
   if (error) {
     return (
@@ -81,20 +91,12 @@ export default function Home() {
     );
   }
 
-  // Total geral de votos
-  const totalVotes = data.reduce((sum, item) => sum + item.totalVotes, 0);
-
-  // Separar o Destaque Vinho do Evento das outras categorias
+  // Separar o Destaque Vinho do Evento e outras categorias
   const eventoCategory = data.find(cat => cat.category === 'Destaque Vinho do Evento');
   const otherCategories = data.filter(cat => cat.category !== 'Destaque Vinho do Evento');
 
-  // Reordenar as categorias para que o Total de Votos apareça após Vinho Inovador
-  const orderedCategories = otherCategories.reduce((acc, cat) => {
-    if (cat.category === 'Destaque Vinho Inovador') {
-      return [...acc, cat, { category: 'Total de Votos', totalVotes: totalVotes }];
-    }
-    return [...acc, cat];
-  }, [] as (CategoryData | { category: string; totalVotes: number })[]);
+  // Remover a lógica de adicionar o Total de Votos após Vinho Inovador
+  const orderedCategories = otherCategories;
 
   // Dados para os gráficos de análise
   const pieData = data
@@ -141,7 +143,7 @@ export default function Home() {
           </Grid>
         )}
 
-        {/* Demais categorias e Total de Votos */}
+        {/* Demais categorias */}
         <Grid container spacing={4} sx={{ marginBottom: 6 }}>
           {orderedCategories.map((category, index) => (
             <Grid item xs={12} sm={6} md={3} key={category.category}>
