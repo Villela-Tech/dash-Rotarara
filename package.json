@@ -11,8 +11,8 @@
   "dependencies": {
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",
-    "@mui/material": "^5.15.7",
     "@mui/icons-material": "^5.15.7",
+    "@mui/material": "^5.15.7",
     "@nivo/bar": "^0.84.0",
     "@nivo/core": "^0.84.0",
     "@nivo/line": "^0.84.0",
@@ -24,7 +24,8 @@
     "next": "14.1.0",
     "react": "^18",
     "react-dom": "^18",
-    "react-intersection-observer": "^9.5.3"
+    "react-intersection-observer": "^9.5.3",
+    "sharp": "^0.33.5"
   },
   "devDependencies": {
     "@types/node": "^20",

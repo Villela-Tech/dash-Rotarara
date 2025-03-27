@@ -148,32 +148,35 @@ export default function Home() {
               height={400}
               delay={0.4}
               options={{
-                margin: { top: 40, right: 80, bottom: 80, left: 80 },
-                innerRadius: 0.5,
-                padAngle: 0.7,
-                cornerRadius: 3,
+                margin: { top: 40, right: 120, bottom: 80, left: 80 },
+                innerRadius: 0.6,
+                padAngle: 0.5,
+                cornerRadius: 4,
                 activeOuterRadiusOffset: 8,
                 colors: { scheme: 'category10' },
-                arcLinkLabelsSkipAngle: 10,
+                arcLinkLabelsOffset: 10,
+                arcLinkLabelsDiagonalLength: 16,
+                arcLinkLabelsStraightLength: 24,
+                arcLinkLabelsSkipAngle: 7,
                 arcLinkLabelsTextColor: theme.palette.wine.champagne,
                 arcLinkLabelsThickness: 2,
                 arcLinkLabelsColor: { from: 'color' },
                 arcLabelsSkipAngle: 10,
-                arcLabelsTextColor: theme.palette.wine.dark,
+                arcLabelsTextColor: theme.palette.wine.champagne,
+                enableArcLabels: false,
                 legends: [
                   {
-                    anchor: 'bottom',
-                    direction: 'row',
+                    anchor: 'right',
+                    direction: 'column',
                     justify: false,
-                    translateY: 56,
-                    itemsSpacing: 0,
+                    translateX: 100,
+                    translateY: 0,
                     itemWidth: 100,
-                    itemHeight: 18,
+                    itemHeight: 20,
+                    itemsSpacing: 10,
+                    symbolSize: 20,
                     itemTextColor: theme.palette.wine.champagne,
-                    itemDirection: 'left-to-right',
-                    itemOpacity: 1,
-                    symbolSize: 18,
-                    symbolShape: 'circle'
+                    itemDirection: 'left-to-right'
                   }
                 ]
               }}
