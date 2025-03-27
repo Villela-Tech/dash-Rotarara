@@ -339,7 +339,11 @@ export default function Home() {
                     background: `linear-gradient(135deg, 
                       ${theme.palette.wine.dark} 0%, 
                     ${theme.palette.wine.main} 100%)`,
-                  color: 'white'
+                  color: 'white',
+                  transition: 'transform 0.2s',
+                  '&:hover': {
+                    transform: 'translateY(-5px)'
+                  }
                 }}
               >
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -366,7 +370,11 @@ export default function Home() {
                 sx={{ 
                   p: 3, 
                   height: '100%',
-                  backgroundColor: theme.palette.background.paper
+                  backgroundColor: theme.palette.background.paper,
+                  transition: 'transform 0.2s',
+                  '&:hover': {
+                    transform: 'translateY(-5px)'
+                  }
                 }}
               >
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -397,17 +405,19 @@ export default function Home() {
                   }
                 }}
               >
-                <CardContent>
+                <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                     <PeopleAltIcon sx={{ fontSize: 30, mr: 2, color: theme.palette.secondary.main }} />
                     <Typography variant="h6">Votos válidos</Typography>
                   </Box>
-                  <Typography variant="h3" sx={{ fontWeight: 'bold', textAlign: 'center', my: 2 }}>
-                    {stats.validRows}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center' }}>
-                    de {stats.totalRows} submissões totais
-                  </Typography>
+                  <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+                    <Typography variant="h3" sx={{ fontWeight: 'bold', mb: 1 }}>
+                      {stats.validRows}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      de {stats.totalRows} submissões totais
+                    </Typography>
+                  </Box>
                 </CardContent>
               </Card>
             </Grid>
@@ -424,35 +434,33 @@ export default function Home() {
               height={400}
               delay={0}
               options={{
-                margin: { top: 40, right: 150, bottom: 80, left: 80 },
-                innerRadius: 0.6,
-                padAngle: 0.5,
-                cornerRadius: 4,
+                margin: { top: 20, right: 20, bottom: 20, left: 20 },
+                innerRadius: 0.5,
+                padAngle: 0.7,
+                cornerRadius: 3,
                 activeOuterRadiusOffset: 8,
-                colors: { scheme: 'category10' },
-                arcLinkLabelsOffset: 10,
-                arcLinkLabelsDiagonalLength: 20,
-                arcLinkLabelsStraightLength: 30,
-                arcLinkLabelsSkipAngle: 10,
-                arcLinkLabelsTextColor: theme.palette.wine.champagne,
-                arcLinkLabelsThickness: 2,
-                arcLinkLabelsColor: { from: 'color' },
+                colors: ['#8A2BE2', '#4169E1', '#20B2AA', '#FF6347', '#FFD700', '#FF69B4', '#32CD32', '#BA55D3', '#FF4500'],
+                borderWidth: 0,
+                borderColor: { from: 'color', modifiers: [['darker', 0.2]] },
+                enableArcLinkLabels: false,
                 arcLabelsSkipAngle: 10,
-                arcLabelsTextColor: theme.palette.wine.champagne,
+                arcLabelsTextColor: { from: 'color', modifiers: [['darker', 2]] },
                 enableArcLabels: false,
                 legends: [
                   {
-                    anchor: 'right',
-                    direction: 'column',
+                    anchor: 'bottom',
+                    direction: 'row',
                     justify: false,
-                    translateX: 120,
-                    translateY: 0,
-                    itemWidth: 120,
-                    itemHeight: 24,
-                    itemsSpacing: 12,
-                    symbolSize: 16,
+                    translateX: 0,
+                    translateY: 30,
+                    itemsSpacing: 10,
+                    itemWidth: 60,
+                    itemHeight: 18,
                     itemTextColor: theme.palette.wine.champagne,
-                    itemDirection: 'left-to-right'
+                    itemDirection: 'left-to-right',
+                    itemOpacity: 1,
+                    symbolSize: 12,
+                    symbolShape: 'circle',
                   }
                 ]
               }}
