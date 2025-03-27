@@ -87,6 +87,10 @@ const ChartCard = ({ title, type, data, height = 400, delay = 0, options = {} }:
           ${theme.palette.background.paper}EE 100%)`,
         backdropFilter: 'blur(10px)',
         border: `1px solid ${theme.palette.wine.light}30`,
+        transition: 'transform 0.2s',
+        '&:hover': {
+          transform: 'translateY(-5px)'
+        }
       }}
     >
       <CardContent
