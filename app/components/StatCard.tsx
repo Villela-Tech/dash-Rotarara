@@ -1,4 +1,4 @@
-import { Card, CardContent, Typography, Box, useTheme } from '@mui/material';
+import { Card, CardContent, Typography, Box, useTheme, SxProps, Theme } from '@mui/material';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { ReactNode } from 'react';
@@ -9,9 +9,10 @@ interface StatCardProps {
   subtitle?: string;
   icon: ReactNode;
   delay?: number;
+  sx?: SxProps<Theme>;
 }
 
-const StatCard = ({ title, value, subtitle, icon, delay = 0 }: StatCardProps) => {
+const StatCard = ({ title, value, subtitle, icon, delay = 0, sx }: StatCardProps) => {
   const theme = useTheme();
   const [ref, inView] = useInView({
     threshold: 0.2,
@@ -32,6 +33,7 @@ const StatCard = ({ title, value, subtitle, icon, delay = 0 }: StatCardProps) =>
           ${theme.palette.background.paper}EE 100%)`,
         backdropFilter: 'blur(10px)',
         border: `1px solid ${theme.palette.wine.light}30`,
+        ...sx
       }}
     >
       <CardContent
@@ -78,9 +80,25 @@ const StatCard = ({ title, value, subtitle, icon, delay = 0 }: StatCardProps) =>
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               marginBottom: subtitle ? '0.5rem' : 0,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
             }}
           >
             {value}
+            <Typography
+              component="span"
+              variant="h6"
+              sx={{
+                color: theme.palette.wine.champagne,
+                opacity: 0.8,
+                fontWeight: 400,
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent'
+              }}
+            >
+              votos
+            </Typography>
           </Typography>
 
           {/* Subtítulo */}

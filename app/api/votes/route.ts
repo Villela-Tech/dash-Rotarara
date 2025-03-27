@@ -1,14 +1,15 @@
 import { NextResponse } from 'next/server';
 import axios from 'axios';
-import { CATEGORIES, SHEET_URL, calculatePercentage, extractWineName } from './config';
+import { CATEGORIES, SHEET_URL, extractWineName } from './config';
 
 interface VoteData {
-  wine: string;
-  winery: string;
-  fullName: string;
-  votes: number;
   category: string;
-  percentage: number;
+  totalVotes: number;
+  topWine?: {
+    name: string;
+    winery: string;
+    votes: number;
+  };
 }
 
 export async function GET() {
@@ -21,8 +22,15 @@ export async function GET() {
     // Processando os dados
     const processData = (rawData: any): VoteData[] => {
       try {
-        const result: VoteData[] = [];
-        const voteCounts: { [key: string]: { [key: string]: { count: number; winery: string; wine: string } } } = {};
+        const categoryVotes: { [key: string]: { 
+          total: number;
+          wines: { [key: string]: { count: number; winery: string; } }
+        } } = {};
+
+        // Inicializa todas as categorias
+        Object.values(CATEGORIES).forEach(category => {
+          categoryVotes[category] = { total: 0, wines: {} };
+        });
 
         // Processando cada linha da planilha
         rawData.table.rows.forEach((row: any, index: number) => {
@@ -33,42 +41,40 @@ export async function GET() {
             if (!row.c[i] || !row.c[i].v) continue;
             
             const category = Object.values(CATEGORIES)[i-1];
-            const { wine, winery, fullName } = extractWineName(row.c[i].v);
+            const { wine, winery } = extractWineName(row.c[i].v);
             
-            if (!voteCounts[category]) {
-              voteCounts[category] = {};
-            }
+            categoryVotes[category].total++;
             
-            if (!voteCounts[category][fullName]) {
-              voteCounts[category][fullName] = {
+            if (!categoryVotes[category].wines[wine]) {
+              categoryVotes[category].wines[wine] = {
                 count: 0,
-                winery,
-                wine
+                winery
               };
             }
-            
-            voteCounts[category][fullName].count += 1;
+            categoryVotes[category].wines[wine].count++;
           }
         });
 
-        // Convertendo contagens em dados formatados
-        Object.entries(voteCounts).forEach(([category, wines]) => {
-          const totalVotes = Object.values(wines).reduce((sum, data) => sum + data.count, 0);
-          
-          Object.entries(wines).forEach(([fullName, data]) => {
-            result.push({
-              wine: data.wine,
-              winery: data.winery,
-              fullName,
-              votes: data.count,
-              category,
-              percentage: calculatePercentage(data.count, totalVotes)
-            });
-          });
-        });
+        // Convertendo para o formato final
+        return Object.entries(categoryVotes).map(([category, data]) => {
+          const topWine = Object.entries(data.wines)
+            .reduce((prev, [wine, info]) => {
+              if (!prev || info.count > prev.votes) {
+                return {
+                  name: wine,
+                  winery: info.winery,
+                  votes: info.count
+                };
+              }
+              return prev;
+            }, null as { name: string; winery: string; votes: number; } | null);
 
-        // Ordenando por votos dentro de cada categoria
-        return result.sort((a, b) => b.votes - a.votes);
+          return {
+            category,
+            totalVotes: data.total,
+            topWine: topWine || undefined
+          };
+        });
       } catch (error) {
         console.error('Erro ao processar dados:', error);
         return [];

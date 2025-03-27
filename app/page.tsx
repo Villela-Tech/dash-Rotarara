@@ -3,37 +3,25 @@
 import { useEffect, useState } from 'react';
 import { Container, Grid, useTheme } from '@mui/material';
 import WineBarIcon from '@mui/icons-material/WineBar';
-import LocalBarIcon from '@mui/icons-material/LocalBar';
-import GroupsIcon from '@mui/icons-material/Groups';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import Layout from './components/Layout';
 import Header from './components/Header';
 import StatCard from './components/StatCard';
 import ChartCard from './components/ChartCard';
 
-interface VoteData {
-  winery: string;
-  votes: number;
+interface CategoryData {
   category: string;
-  wine: string;
-  year?: string;
+  totalVotes: number;
+  topWine?: {
+    name: string;
+    winery: string;
+    votes: number;
+  };
 }
-
-// Definição das categorias
-const CATEGORIES = {
-  ESPUMANTE: 'Destaque Espumante',
-  BRANCO: 'Destaque Vinho Branco',
-  ROSE: 'Destaque Vinho Rosé',
-  TINTO: 'Destaque Vinho Tinto',
-  CUSTO_BENEFICIO: 'Destaque Custo-Benefício',
-  DESIGN: 'Destaque Design de Vinho',
-  INOVADOR: 'Destaque Vinho Inovador',
-  EVENTO: 'Destaque Vinho do Evento'
-};
 
 export default function Home() {
   const theme = useTheme();
-  const [data, setData] = useState<VoteData[]>([]);
+  const [data, setData] = useState<CategoryData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdate, setLastUpdate] = useState(new Date());
@@ -46,9 +34,7 @@ export default function Home() {
           throw new Error('Falha ao carregar os dados');
         }
         const jsonData = await response.json();
-        // Ordenar os dados por número de votos (decrescente)
-        const sortedData = jsonData.sort((a: VoteData, b: VoteData) => b.votes - a.votes);
-        setData(sortedData);
+        setData(jsonData);
         setLastUpdate(new Date());
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Erro desconhecido');
@@ -76,94 +62,75 @@ export default function Home() {
     );
   }
 
-  // Análises gerais
-  const totalVotes = data.reduce((sum, item) => sum + item.votes, 0);
-  const totalWineries = [...new Set(data.map(item => item.winery))].length;
-  const leadingWinery = data.length > 0 ? data[0] : null;
-  const averageVotes = totalWineries > 0 ? totalVotes / totalWineries : 0;
+  // Total geral de votos
+  const totalVotes = data.reduce((sum, item) => sum + item.totalVotes, 0);
 
-  // Análise por categoria
-  const votesByCategory = Object.entries(CATEGORIES).map(([key, name]) => {
-    const categoryData = data.filter(item => item.category === name);
-    const topWine = categoryData.length > 0 
-      ? categoryData.reduce((prev, current) => prev.votes > current.votes ? prev : current)
-      : null;
-    
-    return {
-      category: name,
-      topWine: topWine ? {
-        winery: topWine.winery,
-        wine: topWine.wine,
-        votes: topWine.votes,
-        year: topWine.year,
-      } : null,
-      totalVotes: categoryData.reduce((sum, item) => sum + item.votes, 0),
-    };
-  });
+  // Separar o Destaque Vinho do Evento das outras categorias
+  const eventoCategory = data.find(cat => cat.category === 'Destaque Vinho do Evento');
+  const otherCategories = data.filter(cat => cat.category !== 'Destaque Vinho do Evento');
 
-  // Dados para o gráfico de pizza (top 10 geral)
-  const pieData = data.slice(0, 10).map(item => ({
-    id: item.winery,
-    label: item.winery,
-    value: item.votes,
-  }));
+  // Reordenar as categorias para que o Total de Votos apareça após Vinho Inovador
+  const orderedCategories = otherCategories.reduce((acc, cat) => {
+    if (cat.category === 'Destaque Vinho Inovador') {
+      return [...acc, cat, { category: 'Total de Votos', totalVotes: totalVotes }];
+    }
+    return [...acc, cat];
+  }, [] as (CategoryData | { category: string; totalVotes: number })[]);
 
-  // Dados para o gráfico de barras por categoria
-  const categoryChartData = votesByCategory.map(cat => ({
-    category: cat.category,
-    votes: cat.totalVotes,
-  }));
+  // Dados para os gráficos de análise
+  const pieData = data
+    .filter(category => category.category !== 'Total de Votos')
+    .map(category => ({
+      id: category.category,
+      label: category.category.replace('Destaque ', ''),
+      value: category.totalVotes,
+    }));
+
+  const barData = data
+    .filter(category => category.category !== 'Total de Votos')
+    .map(category => ({
+      category: category.category.replace('Destaque ', ''),
+      votos: category.totalVotes,
+    }));
 
   return (
     <Layout>
       <Container maxWidth="xl">
         <Header lastUpdate={lastUpdate} />
-        
-        {/* Cards de estatísticas gerais */}
-        <Grid container spacing={4} sx={{ marginBottom: 6 }}>
-          <Grid item xs={12} sm={6} md={3}>
-            <StatCard
-              title="Total de Votos"
-              value={totalVotes}
-              icon={<WineBarIcon />}
-              delay={0.2}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <StatCard
-              title="Vinícolas Participantes"
-              value={totalWineries}
-              icon={<LocalBarIcon />}
-              delay={0.4}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <StatCard
-              title="Média de Votos"
-              value={averageVotes.toFixed(1)}
-              icon={<GroupsIcon />}
-              delay={0.6}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <StatCard
-              title="Vinícola Mais Votada"
-              value={`${leadingWinery?.winery || '-'}`}
-              subtitle={`${leadingWinery?.wine || ''}`}
-              icon={<EmojiEventsIcon />}
-              delay={0.8}
-            />
-          </Grid>
-        </Grid>
 
-        {/* Destaques por categoria */}
-        <Grid container spacing={4} sx={{ marginBottom: 6 }}>
-          {votesByCategory.map((cat, index) => (
-            <Grid item xs={12} sm={6} md={3} key={cat.category}>
+        {/* Destaque Vinho do Evento - Centralizado */}
+        {eventoCategory && (
+          <Grid container justifyContent="center" sx={{ marginBottom: 6, marginTop: 4 }}>
+            <Grid item xs={12} sm={6} md={4}>
               <StatCard
-                title={cat.category}
-                value={cat.topWine?.winery || '-'}
-                subtitle={cat.topWine ? `${cat.topWine.wine}${cat.topWine.year ? ` (${cat.topWine.year})` : ''}` : ''}
+                title={eventoCategory.category}
+                value={eventoCategory.totalVotes}
+                subtitle={eventoCategory.topWine ? 
+                  `${eventoCategory.topWine.winery} - ${eventoCategory.topWine.name}` : undefined}
+                icon={<EmojiEventsIcon />}
+                delay={0.2}
+                sx={{
+                  transform: 'scale(1.1)',
+                  '& .MuiCard-root': {
+                    background: `linear-gradient(135deg, 
+                      ${theme.palette.wine.dark} 0%, 
+                      ${theme.palette.wine.main} 100%)`
+                  }
+                }}
+              />
+            </Grid>
+          </Grid>
+        )}
+
+        {/* Demais categorias e Total de Votos */}
+        <Grid container spacing={4} sx={{ marginBottom: 6 }}>
+          {orderedCategories.map((category, index) => (
+            <Grid item xs={12} sm={6} md={3} key={category.category}>
+              <StatCard
+                title={category.category}
+                value={category.totalVotes}
+                subtitle={'topWine' in category && category.topWine ? 
+                  `${category.topWine.winery} - ${category.topWine.name}` : undefined}
                 icon={<WineBarIcon />}
                 delay={0.2 + index * 0.1}
               />
@@ -171,24 +138,83 @@ export default function Home() {
           ))}
         </Grid>
 
-        {/* Gráficos */}
+        {/* Gráficos de análise */}
         <Grid container spacing={4}>
-          <Grid item xs={12}>
+          <Grid item xs={12} md={6}>
             <ChartCard
-              title="Distribuição de Votos por Categoria"
-              type="bar"
-              data={categoryChartData}
-              height={500}
-              delay={0.4}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <ChartCard
-              title="Top 10 Vinícolas (Proporção de Votos)"
+              title="Distribuição por Categoria"
               type="pie"
               data={pieData}
-              height={500}
-              delay={0.6}
+              height={400}
+              delay={0.4}
+              options={{
+                margin: { top: 40, right: 80, bottom: 80, left: 80 },
+                innerRadius: 0.5,
+                padAngle: 0.7,
+                cornerRadius: 3,
+                activeOuterRadiusOffset: 8,
+                colors: { scheme: 'category10' },
+                arcLinkLabelsSkipAngle: 10,
+                arcLinkLabelsTextColor: theme.palette.wine.champagne,
+                arcLinkLabelsThickness: 2,
+                arcLinkLabelsColor: { from: 'color' },
+                arcLabelsSkipAngle: 10,
+                arcLabelsTextColor: theme.palette.wine.dark,
+                legends: [
+                  {
+                    anchor: 'bottom',
+                    direction: 'row',
+                    justify: false,
+                    translateY: 56,
+                    itemsSpacing: 0,
+                    itemWidth: 100,
+                    itemHeight: 18,
+                    itemTextColor: theme.palette.wine.champagne,
+                    itemDirection: 'left-to-right',
+                    itemOpacity: 1,
+                    symbolSize: 18,
+                    symbolShape: 'circle'
+                  }
+                ]
+              }}
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <ChartCard
+              title="Comparativo de Votos"
+              type="bar"
+              data={barData}
+              height={400}
+              delay={0.5}
+              options={{
+                margin: { top: 50, right: 50, bottom: 100, left: 60 },
+                padding: 0.3,
+                colors: { scheme: 'category10' },
+                borderColor: { from: 'color', modifiers: [['darker', 1.6]] },
+                axisTop: null,
+                axisRight: null,
+                axisBottom: {
+                  tickSize: 5,
+                  tickPadding: 5,
+                  tickRotation: -45,
+                  legend: 'Categorias',
+                  legendPosition: 'middle',
+                  legendOffset: 80
+                },
+                axisLeft: {
+                  tickSize: 5,
+                  tickPadding: 5,
+                  tickRotation: 0,
+                  legend: 'Votos',
+                  legendPosition: 'middle',
+                  legendOffset: -40
+                },
+                enableLabel: true,
+                label: (d: { value: number }) => d.value,
+                labelSkipWidth: 12,
+                labelSkipHeight: 12,
+                labelTextColor: { from: 'color', modifiers: [['darker', 1.6]] }
+              }}
             />
           </Grid>
         </Grid>

@@ -10,9 +10,10 @@ interface ChartCardProps {
   data: any[];
   height?: number;
   delay?: number;
+  options?: any;
 }
 
-const ChartCard = ({ title, type, data, height = 400, delay = 0 }: ChartCardProps) => {
+const ChartCard = ({ title, type, data, height = 400, delay = 0, options = {} }: ChartCardProps) => {
   const theme = useTheme();
   const [ref, inView] = useInView({
     threshold: 0.2,
@@ -132,8 +133,9 @@ const ChartCard = ({ title, type, data, height = 400, delay = 0 }: ChartCardProp
             {type === 'bar' ? (
               <ResponsiveBar
                 data={data}
-                keys={['votes']}
-                indexBy={data[0]?.category ? 'category' : 'winery'}
+                {...options}
+                keys={['votos']}
+                indexBy="category"
                 margin={{ top: 50, right: 130, bottom: 120, left: 60 }}
                 padding={0.3}
                 valueScale={{ type: 'linear' }}
@@ -149,7 +151,7 @@ const ChartCard = ({ title, type, data, height = 400, delay = 0 }: ChartCardProp
                   tickSize: 5,
                   tickPadding: 5,
                   tickRotation: -45,
-                  legend: data[0]?.category ? 'Categoria' : 'Vinícola',
+                  legend: 'Categorias',
                   legendPosition: 'middle',
                   legendOffset: 85,
                 }}
@@ -167,30 +169,6 @@ const ChartCard = ({ title, type, data, height = 400, delay = 0 }: ChartCardProp
                   from: 'color',
                   modifiers: [['darker', 1.6]],
                 }}
-                legends={[
-                  {
-                    dataFrom: 'keys',
-                    anchor: 'bottom-right',
-                    direction: 'column',
-                    justify: false,
-                    translateX: 120,
-                    translateY: 0,
-                    itemsSpacing: 2,
-                    itemWidth: 100,
-                    itemHeight: 20,
-                    itemDirection: 'left-to-right',
-                    itemOpacity: 0.85,
-                    symbolSize: 20,
-                    effects: [
-                      {
-                        on: 'hover',
-                        style: {
-                          itemOpacity: 1,
-                        },
-                      },
-                    ],
-                  },
-                ]}
                 theme={chartTheme}
                 role="application"
                 ariaLabel={title}
@@ -199,6 +177,7 @@ const ChartCard = ({ title, type, data, height = 400, delay = 0 }: ChartCardProp
             ) : (
               <ResponsivePie
                 data={data}
+                {...options}
                 margin={{ top: 40, right: 200, bottom: 40, left: 80 }}
                 innerRadius={0.5}
                 padAngle={0.7}
