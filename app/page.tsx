@@ -245,11 +245,17 @@ export default function Home() {
 
   // Separar o Destaque Vinho do Evento e outras categorias
   const eventoCategory = data.find(cat => cat.category === 'Destaque Vinho do Evento');
-  const otherCategories = data.filter(cat => cat.category !== 'Destaque Vinho do Evento');
+  const otherCategories = data.filter(cat => 
+    cat.category !== 'Destaque Vinho do Evento' && 
+    cat.category !== 'Destaque Vinho Laranja'
+  );
 
   // Dados para os gráficos de análise (apenas se tivermos dados)
   const pieData = data
-    .filter(category => category.category !== 'Total de Votos')
+    .filter(category => 
+      category.category !== 'Total de Votos' && 
+      category.category !== 'Destaque Vinho Laranja'
+    )
     .map(category => ({
       id: category.category,
       label: category.category.replace('Destaque ', ''),
@@ -257,7 +263,10 @@ export default function Home() {
     }));
 
   const barData = data
-    .filter(category => category.category !== 'Total de Votos')
+    .filter(category => 
+      category.category !== 'Total de Votos' && 
+      category.category !== 'Destaque Vinho Laranja'
+    )
     .map(category => ({
       category: category.category.replace('Destaque ', ''),
       votos: category.totalVotes,
